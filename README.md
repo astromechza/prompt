@@ -10,7 +10,7 @@ My personal opinionated Bash prompt.
 - Shows active Python virtualenv name if there is one
 - Adds a coloured, trailing '%' to the previous output if it didn't add a newline
 
-[example animation](example.svg)
+![example animation](example.svg)
 
 ## How to install
 
