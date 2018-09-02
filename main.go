@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/logrusorgru/aurora"
 )
@@ -22,6 +23,20 @@ func mainInner() error {
 		return nil
 	case "after":
 		return After(flag.CommandLine)
+	case "setup":
+		thisBinary, err := filepath.Abs(os.Args[0])
+		if err != nil {
+			return fmt.Errorf("failed to find abs path to %s", os.Args[0])
+		}
+		fmt.Println(`PROMPT_PID=$$
+_prompt() {
+	_r=$?
+	` + thisBinary + ` fix
+	PS1="$(` + thisBinary + ` after ${PROMPT_PID} $_r)"
+}
+PS0='$(` + thisBinary + ` before '${PROMPT_PID}')'
+PROMPT_COMMAND="_prompt"`)
+		return nil
 	default:
 		return fmt.Errorf("unknown subcommand '%s'", flag.Arg(0))
 	}
@@ -32,11 +47,4 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		os.Exit(1)
 	}
-	// _, b, _ := cursorPosition()
-	// if b > 1 {
-	// 	fmt.Println("%")
-	// // }
-	// fmt.Printf("%v\n", os.Args[1:])
-	// fmt.Println(terminfo.GetStdoutDimensions())
-	// fmt.Println(aurora.Cyan("══════════════════════════════"))
 }
