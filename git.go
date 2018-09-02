@@ -61,7 +61,10 @@ func gitNumBehind() int {
 
 func gitHasUntracked() bool {
 	c := exec.Command("git", "ls-files", "--other", "--exclude-standard")
-	return c.Run() != nil
+	var b bytes.Buffer
+	c.Stdout = &b
+	c.Run()
+	return len(strings.TrimSpace(b.String())) > 0
 }
 
 func gitHasModified() bool {

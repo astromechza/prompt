@@ -25,12 +25,12 @@ type PromptState struct {
 
 func formatDuration(d time.Duration) string {
 	if d.Hours() > 1.0 {
-		return fmt.Sprintf("%.1fh", d.Hours())
+		return fmt.Sprintf("%.2fh", d.Hours())
 	}
 	if d.Minutes() > 1.0 {
-		return fmt.Sprintf("%.1fm", d.Minutes())
+		return fmt.Sprintf("%.2fm", d.Minutes())
 	}
-	return fmt.Sprintf("%.1fs", d.Seconds())
+	return fmt.Sprintf("%.2fs", d.Seconds())
 }
 
 func After(flags *flag.FlagSet) error {
@@ -93,13 +93,13 @@ func After(flags *flag.FlagSet) error {
 		if gitState.HasStaged || gitState.HasUntracked || gitState.HasModified {
 			fmt.Fprintf(ps1, ":")
 			if gitState.HasUntracked {
-				fmt.Fprint(ps1, aurora.Bold("u"))
+				fmt.Fprint(ps1, aurora.Bold(aurora.Red("u")))
 			}
 			if gitState.HasModified {
 				fmt.Fprint(ps1, aurora.Bold(aurora.Brown("d")))
 			}
 			if gitState.HasStaged {
-				fmt.Fprint(ps1, aurora.Bold("s"))
+				fmt.Fprint(ps1, aurora.Bold(aurora.Green("s")))
 			}
 		}
 		if gitState.Ahead > 0 || gitState.Behind > 0 {
