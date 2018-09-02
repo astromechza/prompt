@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -120,6 +121,7 @@ func After(flags *flag.FlagSet) error {
 	fmt.Fprint(ps1, aurora.Bold("⟫ "))
 
 	p := ps1.String()
+	p = string(regexp.MustCompile("\x1B\\[.*?m").ReplaceAll([]byte(p), []byte("\\[$0\\]")))
 	fmt.Print(p)
 
 	return nil
