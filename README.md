@@ -8,6 +8,14 @@ PROMPT_PID=$$
 PS0='$(./prompt before '${PROMPT_PID}')'
 PROMPT_COMMAND='_r=$?;./prompt fix;PS1=$(./prompt after '${PROMPT_PID}' "$_r")'
 
+PROMPT_PID=$$
+custom_prompt() {
+    PS1="$(./prompt after ${PROMPT_PID} $?)"
+}
+PS0='$(./prompt before '${PROMPT_PID}')'
+PROMPT_COMMAND="custom_prompt"
+
+
 MUST set PS1 to the prompt string otherwise it all breaks
 
 https://superuser.com/questions/175799/does-bash-have-a-hook-that-is-run-before-executing-a-command

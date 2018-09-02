@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -39,9 +38,10 @@ func gitNumAhead() int {
 	var b bytes.Buffer
 	c.Stdout = &b
 	c.Run()
-	if b.Len() > 0 {
-		x, _ := strconv.ParseInt(strings.TrimSpace(b.String()), 10, 64)
-		return int(x)
+	output := strings.TrimSpace(b.String())
+	if len(output) > 0 {
+		lines := strings.Split(output, "\n")
+		return int(len(lines))
 	}
 	return 0
 }
@@ -51,9 +51,10 @@ func gitNumBehind() int {
 	var b bytes.Buffer
 	c.Stdout = &b
 	c.Run()
-	if b.Len() > 0 {
-		x, _ := strconv.ParseInt(strings.TrimSpace(b.String()), 10, 64)
-		return int(x)
+	output := strings.TrimSpace(b.String())
+	if len(output) > 0 {
+		lines := strings.Split(output, "\n")
+		return int(len(lines))
 	}
 	return 0
 }
@@ -79,6 +80,9 @@ func GetGitState() (*GitState, error) {
 	wg.Add(1)
 	go func() {
 		o.Branch = gitBranchSymbol()
+		if strings.HasPrefix(o.Branch, "refs/heads/") {
+			o.Branch = o.Branch[11:]
+		}
 		wg.Done()
 	}()
 	wg.Add(1)

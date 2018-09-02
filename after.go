@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -9,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/logrusorgru/aurora"
 )
 
 type PromptState struct {
@@ -70,35 +73,54 @@ func After(flags *flag.FlagSet) error {
 		state.CWD = strings.Replace(state.CWD, u.HomeDir, "~", 1)
 	}
 
+	ps1 := new(bytes.Buffer)
+
+	fmt.Fprint(ps1, "[")
+
 	if state.Duration != nil {
-		fmt.Printf("(%d %s) ", state.Code, formatDuration(*state.Duration))
+		if state.Code != 0 {
+			fmt.Fprintf(ps1, "%v ", aurora.Red(state.Code))
+		}
+		fmt.Fprintf(ps1, "%v ", aurora.Cyan(formatDuration(*state.Duration)))
 	}
 	if state.Virtualenv != "" {
-		fmt.Printf("(%s) ", state.Virtualenv)
-	}
-	if gitState.Branch != "" {
-		fmt.Printf("(%s:", gitState.Branch)
-		if gitState.HasUntracked {
-			fmt.Printf("u")
-		}
-		if gitState.HasModified {
-			fmt.Printf("d")
-		}
-		if gitState.HasStaged {
-			fmt.Printf("s")
-		}
-		if gitState.Ahead > 0 {
-			fmt.Printf("/%d", gitState.Ahead)
-		}
-		if gitState.Behind > 0 {
-			fmt.Printf("/%d", gitState.Behind)
-		}
-		fmt.Printf(") ")
+		fmt.Fprintf(ps1, "v:%s ", aurora.Magenta(state.Virtualenv))
 	}
 
-	fmt.Printf("%s ", state.User)
-	fmt.Printf("%s ", state.CWD)
-	fmt.Print("$ ")
+	if gitState.Branch != "" {
+		fmt.Fprintf(ps1, "%s", aurora.Bold(aurora.Green(gitState.Branch)))
+		if gitState.HasStaged || gitState.HasUntracked || gitState.HasModified {
+			fmt.Fprintf(ps1, ":")
+			if gitState.HasUntracked {
+				fmt.Fprint(ps1, aurora.Bold("u"))
+			}
+			if gitState.HasModified {
+				fmt.Fprint(ps1, aurora.Bold(aurora.Brown("d")))
+			}
+			if gitState.HasStaged {
+				fmt.Fprint(ps1, aurora.Bold("s"))
+			}
+		}
+		if gitState.Ahead > 0 || gitState.Behind > 0 {
+			fmt.Fprintf(ps1, ":")
+			if gitState.Ahead > 0 {
+				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Green("￪%v"), gitState.Ahead))
+			}
+			if gitState.Behind > 0 {
+				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Red("￬%v"), gitState.Ahead))
+			}
+		}
+		fmt.Fprintf(ps1, " ")
+	}
+
+	fmt.Fprintf(ps1, "%v ", aurora.Bold(aurora.Cyan(state.User)))
+
+	fmt.Fprintf(ps1, "%v ", strings.Replace(state.CWD, "/", aurora.Bold(aurora.Black("/")).String(), -1))
+
+	fmt.Fprint(ps1, aurora.Bold("⟫ "))
+
+	p := ps1.String()
+	fmt.Print(p)
 
 	return nil
 }
