@@ -1,0 +1,6 @@
+{
+    "go.gopath": "/home/ben/.gvm/pkgsets/go1.11/global",
+    "go.goroot": "/home/ben/.gvm/gos/go1.11",
+    "editor.formatOnSave": true,
+    "go.formatTool": "gofmt"
+}
