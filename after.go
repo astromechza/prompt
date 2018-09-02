@@ -10,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/logrusorgru/aurora"
 )
 
 type PromptState struct {
@@ -79,45 +77,45 @@ func After(flags *flag.FlagSet) error {
 
 	if state.Duration != nil {
 		if state.Code != 0 {
-			fmt.Fprintf(ps1, "%v ", aurora.Red(state.Code))
+			fmt.Fprintf(ps1, "%v ", state.Code)
 		}
-		fmt.Fprintf(ps1, "%v ", aurora.Cyan(formatDuration(*state.Duration)))
+		fmt.Fprintf(ps1, "%v ", formatDuration(*state.Duration))
 	}
 	if state.Virtualenv != "" {
-		fmt.Fprintf(ps1, "v:%s ", aurora.Magenta(state.Virtualenv))
+		fmt.Fprintf(ps1, "v:%s ", state.Virtualenv)
 	}
 
 	if gitState.Branch != "" {
-		fmt.Fprintf(ps1, "%s", aurora.Bold(aurora.Green(gitState.Branch)))
+		fmt.Fprintf(ps1, "%s", gitState.Branch)
 		if gitState.HasStaged || gitState.HasUntracked || gitState.HasModified {
 			fmt.Fprintf(ps1, ":")
 			if gitState.HasUntracked {
-				fmt.Fprint(ps1, aurora.Bold("u"))
+				fmt.Fprint(ps1, "u")
 			}
 			if gitState.HasModified {
-				fmt.Fprint(ps1, aurora.Bold(aurora.Brown("d")))
+				fmt.Fprint(ps1, "d")
 			}
 			if gitState.HasStaged {
-				fmt.Fprint(ps1, aurora.Bold("s"))
+				fmt.Fprint(ps1, "s")
 			}
 		}
 		if gitState.Ahead > 0 || gitState.Behind > 0 {
 			fmt.Fprintf(ps1, ":")
 			if gitState.Ahead > 0 {
-				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Green("￪%v"), gitState.Ahead))
+				fmt.Fprintf(ps1, "￪%v", gitState.Ahead)
 			}
 			if gitState.Behind > 0 {
-				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Red("￬%v"), gitState.Ahead))
+				fmt.Fprintf(ps1, "￬%v", gitState.Ahead)
 			}
 		}
 		fmt.Fprintf(ps1, " ")
 	}
 
-	fmt.Fprintf(ps1, "%v ", aurora.Bold(aurora.Cyan(state.User)))
+	fmt.Fprintf(ps1, "%v ", state.User)
 
-	fmt.Fprintf(ps1, "%v ", strings.Replace(state.CWD, "/", aurora.Bold(aurora.Black("/")).String(), -1))
+	fmt.Fprintf(ps1, "%v ", strings.Replace(state.CWD, "/", "/", -1))
 
-	fmt.Fprint(ps1, aurora.Bold("⟫ "))
+	fmt.Fprint(ps1, "⟫ ")
 
 	p := ps1.String()
 	fmt.Print(p)
