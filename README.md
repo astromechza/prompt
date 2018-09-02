@@ -10,6 +10,8 @@ My personal opinionated Bash prompt.
 - Shows active Python virtualenv name if there is one
 - Adds a coloured, trailing '%' to the previous output if it didn't add a newline
 
+[example animation](example.svg)
+
 ## How to install
 
 You'll need a Go development environment for now, I have no plans to release prebuilt binaries at this time.
