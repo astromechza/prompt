@@ -30,12 +30,11 @@ func mainInner() error {
 		}
 		fmt.Println(`PROMPT_PID=$$
 _prompt() {
-	_r=$?
 	` + thisBinary + ` fix
-	PS1="$(` + thisBinary + ` after ${PROMPT_PID} $_r)"
+	PS1="$(` + thisBinary + ` after ${PROMPT_PID} $1)"
 }
 PS0='$(` + thisBinary + ` before '${PROMPT_PID}')'
-PROMPT_COMMAND="_prompt"`)
+PROMPT_COMMAND='_prompt $?'`)
 		return nil
 	default:
 		return fmt.Errorf("unknown subcommand '%s'", flag.Arg(0))
