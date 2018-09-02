@@ -7,12 +7,12 @@ import (
 
 	"github.com/logrusorgru/aurora"
 )
- 
-func mainInner() error { 
+
+func mainInner() error {
 	flag.Parse()
 	if flag.NArg() == 0 {
 		return fmt.Errorf("missing before/after subcommand")
-	} 
+	}
 
 	switch flag.Arg(0) {
 	case "before":
@@ -20,22 +20,15 @@ func mainInner() error {
 	case "fix":
 		FixCursor(fmt.Sprint(aurora.Bold(aurora.Black("%"))))
 		return nil
-	case "size":
-		w, h, err := GetSize(int(os.Stdin.Fd()))
-		if err != nil {
-			w, h = 0, 0
-		}
-		fmt.Printf("%d %d", w, h)
-		return nil
 	case "after":
 		return After(flag.CommandLine)
 	default:
 		return fmt.Errorf("unknown subcommand '%s'", flag.Arg(0))
-	} 
+	}
 }
 
 func main() {
-	if err := mainInner(); err != nil { 
+	if err := mainInner(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		os.Exit(1)
 	}

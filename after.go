@@ -9,22 +9,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	git "gopkg.in/src-d/go-git.v4"
-
-	"github.com/logrusorgru/aurora"
 )
 
 type PromptState struct {
-	Code         int
-	Duration     *time.Duration
-	CWD          string
-	User         string
-	Virtualenv   string
-	GitBranch    string
-	GitUntracked bool
-	GitModified  bool
-	GitStaged    bool
+	Code       int
+	Duration   *time.Duration
+	CWD        string
+	User       string
+	Virtualenv string
 }
 
 func formatDuration(d time.Duration) string {
@@ -69,63 +61,44 @@ func After(flags *flag.FlagSet) error {
 		state.Virtualenv = path.Base(state.Virtualenv)
 	}
 
-	repo, err := git.PlainOpen(path.Join(state.CWD))
-	if err == nil {
-		ref, _ := repo.Head()
-		state.GitBranch = ref.Name().Short()
-		w, _ := repo.Worktree()
-		s, _ := w.Status()
-		for _, v := range s {
-			if v.Staging != git.Untracked && v.Staging != git.Unmodified {
-				state.GitStaged = true
-			} else if v.Worktree == git.Untracked {
-				state.GitUntracked = true
-			} else if v.Worktree != git.Unmodified {
-				state.GitModified = true
-			}
-		}
+	gitState, err := GetGitState()
+	if err != nil {
+		return fmt.Errorf("unable to get git state: %s", err)
 	}
 
 	if strings.HasPrefix(state.CWD, u.HomeDir) {
 		state.CWD = strings.Replace(state.CWD, u.HomeDir, "~", 1)
 	}
 
-	parts := make([]interface{}, 0)
-
 	if state.Duration != nil {
-		parts = append(parts, fmt.Sprintf("x:%d", state.Code))
-		parts = append(parts, fmt.Sprintf("t:%s", formatDuration(*state.Duration)))
+		fmt.Printf("(%d %s) ", state.Code, formatDuration(*state.Duration))
 	}
 	if state.Virtualenv != "" {
-		parts = append(parts, fmt.Sprintf("v:%s", state.Virtualenv))
+		fmt.Printf("(%s) ", state.Virtualenv)
 	}
-	if state.GitBranch != "" {
-		g := state.GitBranch
-		if state.GitUntracked {
-			g += "u"
+	if gitState.Branch != "" {
+		fmt.Printf("(%s:", gitState.Branch)
+		if gitState.HasUntracked {
+			fmt.Printf("u")
 		}
-		if state.GitModified {
-			g += "m"
+		if gitState.HasModified {
+			fmt.Printf("d")
 		}
-		if state.GitStaged {
-			g += "g"
+		if gitState.HasStaged {
+			fmt.Printf("s")
 		}
-		parts = append(parts, g)
+		if gitState.Ahead > 0 {
+			fmt.Printf("/%d", gitState.Ahead)
+		}
+		if gitState.Behind > 0 {
+			fmt.Printf("/%d", gitState.Behind)
+		}
+		fmt.Printf(") ")
 	}
 
-	parts = append(parts, state.User)
-	parts = append(parts, state.CWD)
-
-	for i, p := range parts {
-		if i%2 == 0 {
-			fmt.Print(aurora.BgGray(p).String())
-			fmt.Print(aurora.BgCyan(aurora.Gray("▌")).String())
-		} else {
-			fmt.Print(aurora.BgCyan(p).String())
-			fmt.Print(aurora.BgGray(aurora.Cyan("▌")).String())
-		}
-	}
-	fmt.Print(" > ")
+	fmt.Printf("%s ", state.User)
+	fmt.Printf("%s ", state.CWD)
+	fmt.Print("$ ")
 
 	return nil
 }
