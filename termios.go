@@ -70,11 +70,3 @@ func cursorPosition() (int, int, error) {
 	}
 	return 0, 0, fmt.Errorf("bad line: '%s'", text)
 }
-
-func GetSize(fd int) (width, height int, err error) {
-	ws, err := unix.IoctlGetWinsize(fd, unix.TIOCGWINSZ)
-	if err != nil {
-		return -1, -1, err
-	}
-	return int(ws.Col), int(ws.Row), nil
-}

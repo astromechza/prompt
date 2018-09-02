@@ -8,6 +8,7 @@ My personal opinionated Bash prompt.
 - Shows execution time of the previous command
 - Shows Git branch and status of working tree
 - Shows active Python virtualenv name if there is one
+- Adds a coloured, trailing '%' to the previous output if it didn't add a newline
 
 ## How to install
 
