@@ -3,11 +3,29 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/logrusorgru/aurora"
 )
+
+var promptDebug = os.Getenv("PROMPT_DEBUG") != ""
+
+func promptDebugLog(format string, args ...interface{}) {
+	if promptDebug {
+		log.Printf(format, args...)
+	}
+}
+
+func runCmdWithDebug(cmd *exec.Cmd) error {
+	s := time.Now()
+	e := cmd.Run()
+	promptDebugLog("%v: %s", cmd.Args, time.Since(s))
+	return e
+}
 
 func mainInner() error {
 	flag.Parse()
@@ -42,8 +60,10 @@ PROMPT_COMMAND='_prompt $?'`)
 }
 
 func main() {
+	start := time.Now()
 	if err := mainInner(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		os.Exit(1)
 	}
+	promptDebugLog("%v: %s", os.Args, time.Since(start))
 }
