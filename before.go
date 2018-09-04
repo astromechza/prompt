@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Before executes before each command to store the state
 func Before(flags *flag.FlagSet) error {
 	if flag.NArg() != 2 {
 		return fmt.Errorf("incorrect number of args %d != 2", flag.NArg())

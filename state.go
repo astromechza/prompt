@@ -7,14 +7,17 @@ import (
 	"time"
 )
 
+// BeforeState object to store on disk
 type BeforeState struct {
 	Time time.Time `json:"time"`
 }
 
+// StatePath returns the prompt state file for the given uid
 func StatePath(uid string) string {
 	return path.Join(os.TempDir(), ".prompt."+uid)
 }
 
+// PutState writes the state object under the given uid
 func PutState(state BeforeState, uid string) error {
 	f, err := os.OpenFile(StatePath(uid), os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
@@ -28,6 +31,7 @@ func PutState(state BeforeState, uid string) error {
 	return nil
 }
 
+// TryPopState attempts to retrieve the state object for the given uid
 func TryPopState(uid string) (BeforeState, error) {
 	o := BeforeState{}
 	f, err := os.Open(StatePath(uid))

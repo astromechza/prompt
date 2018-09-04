@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-type GitState struct {
+type gitState struct {
 	Branch       string
 	Ahead        int
 	Behind       int
@@ -78,8 +78,8 @@ func gitHasStaged() bool {
 	return runCmdWithDebug(c) != nil
 }
 
-func GetGitState() (*GitState, error) {
-	o := new(GitState)
+func getGitState() (*gitState, error) {
+	o := new(gitState)
 
 	// environment variable to ignore git if required
 	if os.Getenv("PROMPT_NO_GIT") != "" {

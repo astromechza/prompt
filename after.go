@@ -15,7 +15,7 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
-type PromptState struct {
+type promptState struct {
 	Code       int
 	Duration   *time.Duration
 	CWD        string
@@ -33,6 +33,7 @@ func formatDuration(d time.Duration) string {
 	return fmt.Sprintf("%.2fs", d.Seconds())
 }
 
+// After subcommand that runs after each command
 func After(flags *flag.FlagSet) error {
 	afterTime := time.Now()
 	if flag.NArg() != 3 {
@@ -49,7 +50,7 @@ func After(flags *flag.FlagSet) error {
 		return fmt.Errorf("unable to pop state: %s", err)
 	}
 
-	state := new(PromptState)
+	state := new(promptState)
 	state.Code = code
 	state.CWD, _ = os.Getwd()
 	if !beforeState.Time.IsZero() {
@@ -65,7 +66,7 @@ func After(flags *flag.FlagSet) error {
 		state.Virtualenv = path.Base(state.Virtualenv)
 	}
 
-	gitState, err := GetGitState()
+	currentGitState, err := getGitState()
 	if err != nil {
 		return fmt.Errorf("unable to get git state: %s", err)
 	}
@@ -88,27 +89,27 @@ func After(flags *flag.FlagSet) error {
 		fmt.Fprintf(ps1, "v:%s ", aurora.Magenta(state.Virtualenv))
 	}
 
-	if gitState.Branch != "" {
-		fmt.Fprintf(ps1, "%s", aurora.Bold(aurora.Green(gitState.Branch)))
-		if gitState.HasStaged || gitState.HasUntracked || gitState.HasModified {
+	if currentGitState.Branch != "" {
+		fmt.Fprintf(ps1, "%s", aurora.Bold(aurora.Green(currentGitState.Branch)))
+		if currentGitState.HasStaged || currentGitState.HasUntracked || currentGitState.HasModified {
 			fmt.Fprintf(ps1, ":")
-			if gitState.HasUntracked {
+			if currentGitState.HasUntracked {
 				fmt.Fprint(ps1, aurora.Bold(aurora.Red("u")))
 			}
-			if gitState.HasModified {
+			if currentGitState.HasModified {
 				fmt.Fprint(ps1, aurora.Bold(aurora.Brown("d")))
 			}
-			if gitState.HasStaged {
+			if currentGitState.HasStaged {
 				fmt.Fprint(ps1, aurora.Bold(aurora.Green("s")))
 			}
 		}
-		if gitState.Ahead > 0 || gitState.Behind > 0 {
+		if currentGitState.Ahead > 0 || currentGitState.Behind > 0 {
 			fmt.Fprintf(ps1, ":")
-			if gitState.Ahead > 0 {
-				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Green("￪%v"), gitState.Ahead))
+			if currentGitState.Ahead > 0 {
+				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Green("￪%v"), currentGitState.Ahead))
 			}
-			if gitState.Behind > 0 {
-				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Red("￬%v"), gitState.Ahead))
+			if currentGitState.Behind > 0 {
+				fmt.Fprintf(ps1, aurora.Sprintf(aurora.Red("￬%v"), currentGitState.Ahead))
 			}
 		}
 		fmt.Fprintf(ps1, " ")

@@ -10,6 +10,7 @@ import (
 	"fmt"
 )
 
+// FixCursor adds a newline if the cursor position is not at the start of line
 func FixCursor(indicator string) {
 	_, x, err := cursorPosition()
 	if err != nil {
