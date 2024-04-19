@@ -83,7 +83,7 @@ func After(flags *flag.FlagSet) error {
 		if state.Code != 0 {
 			fmt.Fprintf(ps1, "%v ", aurora.Red(state.Code))
 		}
-		fmt.Fprintf(ps1, "%v ", aurora.Cyan(formatDuration(*state.Duration)))
+		fmt.Fprintf(ps1, "%v %s ", aurora.Cyan(formatDuration(*state.Duration)), aurora.Cyan(afterTime.Format(`Jan 02 15:04`)))
 	}
 	if state.Virtualenv != "" {
 		fmt.Fprintf(ps1, "v:%s ", aurora.Magenta(state.Virtualenv))
